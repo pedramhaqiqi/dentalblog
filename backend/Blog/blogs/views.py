@@ -1,7 +1,10 @@
+import io
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from blogs.models import BlogModel
 from blogs.serializers import BlogsSerializer
+from blogs.shared import extract_text_from_pdf
+
 
 
 # Create your views here.
@@ -25,24 +28,27 @@ class BlogView(APIView):
         Body parameters:
         {
             title: The title of the blog post
-            blog : pdf file containing the blog paper
-            image_url : url of the image related to the blog post
+            pdf_file : pdf file containing the blog paper
             source_url : url of the source related to the blog post
         }
             
         """
         
         title = request.data.get('title', '')
-        blog = request.data.get('blog','')
         source_url = request.data.get('source_url','')
-        image_url = request.data.get('image_url','')
+        pdf_file = request.FILES['pdf_file']
         
-        BlogModel.objects.create(
-            summary = blog,
+        pdf_bytes = io.BytesIO(pdf_file.read())
+        pdf_text = extract_text_from_pdf(pdf_bytes)
+       
+        
+        created = BlogModel.objects.create(
+            summary = pdf_text,
             title = title,
             source_url = source_url,
-            image_url = image_url
         )
         
-        return Response(status=200)
+        return Response(self.serializer(created).data,status=200)
+        
+        
         
