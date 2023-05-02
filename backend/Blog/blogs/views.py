@@ -15,7 +15,7 @@ class BlogView(APIView):
         """
         
         Queryblogs = BlogModel.objects.all()
-        serialized_blog = self.serializer(Queryblogs)
+        serialized_blog = self.serializer(Queryblogs, many=True)
         
         return Response(serialized_blog.data, status=200)
     
