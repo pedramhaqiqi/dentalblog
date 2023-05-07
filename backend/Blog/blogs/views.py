@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from blogs.models import BlogModel
 from blogs.serializers import BlogsSerializer
-from blogs.shared import extract_text_from_pdf
+from blogs.pdf import PDFSummarizer
 
 
 
@@ -38,17 +38,16 @@ class BlogView(APIView):
         source_url = request.data.get('source_url','')
         pdf_file = request.FILES['pdf_file']
         
-        pdf_bytes = io.BytesIO(pdf_file.read())
-        pdf_text = extract_text_from_pdf(pdf_bytes)
-       
+        summarizer = PDFSummarizer(pdf_file)
+        result = summarizer.chunkerize_and_summarize(8)
+                    
         
-        created = BlogModel.objects.create(
-            summary = pdf_text,
-            title = title,
-            source_url = source_url,
-        )
+        # created = BlogModel.objects.create(
+        #     summary = pdf_text,
+        #     title = title,
+        #     source_url = source_url,
+        # )
         
-        return Response(self.serializer(created).data,status=200)
-        
+        return Response(result ,status=200)
         
         
