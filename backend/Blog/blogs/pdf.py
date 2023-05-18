@@ -11,7 +11,15 @@ class PDFSummarizer:
     API_KEY: str
     
     ai_config: dict = {
-        "init_instrcution_message" : "Summarize the following information:"
+        "init_instrcution_message" : """
+         You are a helpful assistant tasked with summarizing parts of research papers in a blog-like format. 
+         1. Analyze the paper, focusing on the abstract, introduction, results, and conclusion.
+         2. Extract key points, including the main argument, methodology, findings, and implications.
+         3. Use reliable external sources to fill in any unclear terms, concepts, or references.
+         4. Write an engaging and informative summary using the key points and external sources to fill knowledge gaps.
+         5. Avoid redundancy; each point should be unique and contribute to the reader's understanding.
+         6. Review and revise the summary for clarity, coherence, and conciseness.
+         """
     }
   
     def extract_text_from_pdf(self, pdf_bytes):
@@ -25,13 +33,36 @@ class PDFSummarizer:
     def setOpenai(self):
         self.API_KEY= os.getenv('API_KEY')
         
+    def question_llm(
+        self,
+        system_prompt: str,
+        prompt: str,
+        model="gpt-3.5-turbo",
+        temperature=0.7,
+        max_tokens=500,
+    ):
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ]
+
+        response = ChatCompletion.create(
+            api_key= self.API_KEY,
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        return response.choices[0]['message']['content']
+    
     def summarize_chunk(self, chunk):
         response = ChatCompletion.create(
             api_key=self.API_KEY,
             model="gpt-3.5-turbo",
             messages=[
-                    {"role": "user", "content" : f"{self.ai_config['init_instrcution_message']}"},
-                    {"role": "user", "content": f"{chunk}"},
+                    {"role": "user", "content" : self.ai_config['init_instrcution_message']},
+                    {"role": "user", "content": chunk},
                 ]
             )
         
@@ -56,7 +87,6 @@ class PDFSummarizer:
         for chunk in self.split_text_into_chunks(chunk_count):
             result += self.summarize_chunk(chunk)
         return result
-        
         
     def __init__(self, pdf_file):
         super()

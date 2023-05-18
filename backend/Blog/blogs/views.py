@@ -40,8 +40,24 @@ class BlogView(APIView):
         
         summarizer = PDFSummarizer(pdf_file)
         result = summarizer.chunkerize_and_summarize(8)
-                    
+       
+        questions = [
+                        "what is the summary of the abstract of this article",
+                        "what is the background information needed to understand this article",
+                        "what is the thesis of the article",
+                        "what was the method used in the article",
+                        "List, explain and discuss key findings in the article",
+                        "summarize a conclusion for this article",
+                        "List the most important sources"
+                    ]
         
+        blog: str = ''
+        
+        for q in questions:
+            res = summarizer.question_llm(q, result)
+            print(f"{q}: {res}")
+            
+    
         # created = BlogModel.objects.create(
         #     summary = pdf_text,
         #     title = title,
