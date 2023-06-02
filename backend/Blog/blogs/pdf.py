@@ -1,4 +1,5 @@
 import io
+from time import sleep
 import pdfplumber
 import os
 from dotenv import load_dotenv
@@ -60,6 +61,7 @@ class PDFSummarizer:
         response = ChatCompletion.create(
             api_key=self.API_KEY,
             model="gpt-3.5-turbo",
+            max_tokens=200,
             messages=[
                     {"role": "user", "content" : self.ai_config['init_instrcution_message']},
                     {"role": "user", "content": chunk},
@@ -85,6 +87,8 @@ class PDFSummarizer:
     def chunkerize_and_summarize(self, chunk_count):
         result = ''
         for chunk in self.split_text_into_chunks(chunk_count):
+            print('chunklen',len(chunk))
+            sleep(10)
             result += self.summarize_chunk(chunk)
         return result
         

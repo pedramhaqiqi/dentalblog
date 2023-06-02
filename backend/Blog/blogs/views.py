@@ -1,4 +1,6 @@
 import io
+from time import sleep
+import openai
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from blogs.models import BlogModel
@@ -39,11 +41,15 @@ class BlogView(APIView):
         pdf_file = request.FILES['pdf_file']
         
         summarizer = PDFSummarizer(pdf_file)
-        result = summarizer.chunkerize_and_summarize(8)
+        chunks = 15
+        
+        
+        result=  summarizer.chunkerize_and_summarize(chunks)
        
+            
         questions = [
                         "what is the summary of the abstract of this article",
-                        "what is the background information needed to understand this article",
+                        "Summarize the introduction of the article and add a few background information related to the article",
                         "what is the thesis of the article",
                         "what was the method used in the article",
                         "List, explain and discuss key findings in the article",
@@ -55,15 +61,10 @@ class BlogView(APIView):
         
         for q in questions:
             res = summarizer.question_llm(q, result)
-            print(f"{q}: {res}")
+            sleep(2)
+            blog += f"{q}: {res}"
             
-    
-        # created = BlogModel.objects.create(
-        #     summary = pdf_text,
-        #     title = title,
-        #     source_url = source_url,
-        # )
         
-        return Response(result ,status=200)
+        return Response(blog ,status=200)
         
         
