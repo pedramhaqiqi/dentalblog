@@ -41,7 +41,7 @@ class BlogView(APIView):
         pdf_file = request.FILES['pdf_file']
         
         summarizer = PDFSummarizer(pdf_file)
-        chunks = 15
+        chunks = 10
         
         
         result=  summarizer.chunkerize_and_summarize(chunks)
@@ -49,7 +49,6 @@ class BlogView(APIView):
             
         questions = [
                         "what is the summary of the abstract of this article",
-                        "Summarize the introduction of the article and add a few background information related to the article",
                         "what is the thesis of the article",
                         "what was the method used in the article",
                         "List, explain and discuss key findings in the article",
@@ -59,12 +58,11 @@ class BlogView(APIView):
         
         blog: str = ''
         
-        for q in questions:
-            res = summarizer.question_llm(q, result)
-            sleep(2)
-            blog += f"{q}: {res}"
+        # for q in questions:
+        #     res = summarizer.question_llm(q, result)
+        #     blog += f"{q}: {res}"
             
         
-        return Response(blog ,status=200)
+        return Response(result ,status=200)
         
         

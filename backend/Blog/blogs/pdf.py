@@ -88,7 +88,7 @@ class PDFSummarizer:
         result = ''
         for chunk in self.split_text_into_chunks(chunk_count):
             print('chunklen',len(chunk))
-            sleep(10)
+            sleep(2)
             result += self.summarize_chunk(chunk)
         return result
         
